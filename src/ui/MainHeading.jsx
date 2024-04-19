@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import Filter from "./Filter";
 import { HiPlusCircle } from "react-icons/hi";
+import useInvoicesList from "../features/useInvoicesList";
 
 const StyledHeadingContainer = styled.section`
   width: 100%;
@@ -52,11 +53,19 @@ const StyledAddBtn = styled.button`
 `;
 
 function MainHeading() {
+  const { isLoading, invoices } = useInvoicesList();
+
+  if (isLoading) return null;
+
   return (
     <StyledHeadingContainer>
       <StyledHeadingBox>
         <StyledHeading>Invoices</StyledHeading>
-        <StyledInvoicesCount>There are 7 total invoices</StyledInvoicesCount>
+        <StyledInvoicesCount>
+          {invoices
+            ? `There are ${invoices.length} total invoices`
+            : "No Invoices"}
+        </StyledInvoicesCount>
       </StyledHeadingBox>
       <Filter />
       <StyledAddBtn>

@@ -1,6 +1,8 @@
 import styled from "styled-components";
-// import EmptyInvoices from "./EmptyInvoices"
+import EmptyInvoices from "./EmptyInvoices";
 import InvoiceItem from "./InvoiceItem";
+import useInvoicesList from "../features/useInvoicesList";
+import Spinner from "./Spinner";
 
 const StyledInvoicesList = styled.div`
   width: 100%;
@@ -10,12 +12,17 @@ const StyledInvoicesList = styled.div`
 `;
 
 function InvoicesList() {
+  const { isLoading, invoices } = useInvoicesList();
+
+  if (isLoading) return <Spinner />;
+
   return (
     <StyledInvoicesList>
-      <InvoiceItem />
-      <InvoiceItem />
-      <InvoiceItem />
-      {/* <EmptyInvoices /> */}
+      {!invoices
+        ? invoices?.length === 0 && <EmptyInvoices />
+        : invoices?.map((invoice) => (
+            <InvoiceItem key={invoice.id} invoice={invoice} />
+          ))}
     </StyledInvoicesList>
   );
 }
