@@ -1,8 +1,8 @@
 import { createContext, useContext, useEffect } from "react";
 import useLocalStorage from "../hooks/useLocalStorage";
 
+// creating the context for the theme to make it available to use over the whole project
 const ThemeContext = createContext();
-
 
 function ThemeProvider({children}) {
     const [isDark, setIsDark] = useLocalStorage(

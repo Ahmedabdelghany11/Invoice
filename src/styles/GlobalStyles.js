@@ -13,11 +13,24 @@ const GlobalStyles = createGlobalStyle`
     --secondary-color: #1f213a;
     --text-color: #fff;
   }
+
+  --overlay-background: rgba(0, 0, 0, 0.6);
   
   --header-color: #1f213a;
 
+  --third-color: #868bb5;
+
   --logo-dark-color: #7c5df9;
   --logo-light-color: #9278ff;
+
+  --paid-color: #40dda6;
+  --paid-bg: rgb(64 221 166 / 0.2);
+
+  --pending-color: #f78d00;
+  --pending-bg: rgb(247 141 0 / 0.2);
+
+  --draft-color: #e2e4fb;
+  --draft-bg: rgb(226 228 251 / 0.2);
 
   --main-transition: 0.3s
 }
@@ -118,14 +131,14 @@ button {
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: var(--main-color);
-  box-shadow: 0 0 4px 1px var(--secondary-color) inset;
+  background-color: var(--third-color);
+  box-shadow: 0 0 4px 1px var(--main-color) inset;
   border-radius: 5px;
   transition: var(--main-transition);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  box-shadow: 0 0 6px 1px var(--secondary-color) inset;
+  box-shadow: 0 0 6px 1px var(--main-color) inset;
 }
 
 #root {
