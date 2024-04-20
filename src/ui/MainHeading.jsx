@@ -15,7 +15,6 @@ const StyledHeadingContainer = styled.section`
 `;
 
 const StyledHeadingBox = styled.div`
-  flex: 1;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -24,6 +23,10 @@ const StyledHeadingBox = styled.div`
 
 const StyledHeading = styled.h1`
   font-size: 5rem;
+
+  @media screen and (max-width: 991px) {
+    font-size: 2.4rem;
+  }
 `;
 
 const StyledInvoicesCount = styled.span`
@@ -52,6 +55,11 @@ const StyledAddBtn = styled.button`
   > svg {
     font-size: 2.4rem;
   }
+
+  @media screen and (max-width: 991px) {
+    padding: 8px 16px;
+    border-radius: 16px;
+  }
 `;
 
 function MainHeading() {
@@ -74,14 +82,16 @@ function MainHeading() {
         <StyledHeading>Invoices</StyledHeading>
         <StyledInvoicesCount>
           {invoices
-            ? `There are ${invoices.length} total invoices`
+            ? window.innerWidth <= 767
+              ? `${invoices.length} invoices`
+              : `There are ${invoices.length} total invoices`
             : "No Invoices"}
         </StyledInvoicesCount>
       </StyledHeadingBox>
       <Filter />
       <StyledAddBtn onClick={openForm}>
         <HiPlusCircle />
-        New Invoice
+        {window.innerWidth <= 767 ? "New" : "New Invoice"}
       </StyledAddBtn>
       {isFormOpen && <InvoiceForm close={closeForm} isOpen={isFormOpen} />}
     </StyledHeadingContainer>

@@ -8,6 +8,7 @@ import useInvoice from "../features/useInvoice";
 import Spinner from "./Spinner";
 import { formatCurrency, formatDate } from "../utilities/helpers";
 import useUpdateInvoice from "../features/useUpdateInvoice";
+import useDeleteInvoice from "../features/useDeleteInvoice";
 
 const StyledInvoiceCartContainer = styled.div`
   position: relative;
@@ -23,6 +24,15 @@ const StyledInvoiceCart = styled.section`
   flex-direction: column;
   align-items: start;
   gap: 3rem;
+
+  @media screen and (max-width: 991px) {
+    padding-top: 6rem;
+    width: 80%;
+  }
+
+  @media screen and (max-width: 767px) {
+    width: 100%;
+  }
 `;
 
 const StyledBackLink = styled(Link)`
@@ -50,6 +60,10 @@ const StyledStatusBox = styled.div`
   transition: var(--main-transition);
   padding: 3rem;
   border-radius: 1.5rem;
+
+  @media screen and (max-width: 767px) {
+    flex-direction: column;
+  }
 `;
 
 const StyledStatus = styled.div`
@@ -92,6 +106,10 @@ const StyledStatusBtnsContainer = styled.div`
   align-items: center;
   gap: 1rem;
   position: relative;
+
+  @media screen and (max-width: 767px) {
+    gap: 2rem;
+  }
 `;
 
 const StyledStatusBtn = styled.button`
@@ -295,6 +313,7 @@ const StyledCartItemListFooter = styled.div`
 function InvoiceCart() {
   const { isLoading, invoice } = useInvoice();
   const { isLoading: isFormLoading, update } = useUpdateInvoice();
+  const { deleteInvoice } = useDeleteInvoice();
   const [isFormOpen, setIsFormOpen] = useState(false);
 
   function openForm() {
@@ -307,6 +326,10 @@ function InvoiceCart() {
 
   function handleUpdateStatus() {
     update({ ...invoice, status: "paid" });
+  }
+
+  function handleDeleteInvoice() {
+    deleteInvoice(invoice.id);
   }
 
   if (isLoading || isFormLoading) return <Spinner />;
@@ -331,7 +354,9 @@ function InvoiceCart() {
             <StyledStatusBtn className="edit" onClick={openForm}>
               Edit
             </StyledStatusBtn>
-            <StyledStatusBtn className="delete">Delete</StyledStatusBtn>
+            <StyledStatusBtn className="delete" onClick={handleDeleteInvoice}>
+              Delete
+            </StyledStatusBtn>
             {invoice.status !== "paid" && (
               <StyledStatusBtn
                 className="mark"
@@ -348,7 +373,7 @@ function InvoiceCart() {
           <StyledCartContentHeader>
             <StyledCartContentInfo>
               <StyledCartContentInfoHeading>
-                <span>#</span>
+                <span># </span>
                 {invoice.id}
               </StyledCartContentInfoHeading>
               <StyledCartContentInfoDescription>

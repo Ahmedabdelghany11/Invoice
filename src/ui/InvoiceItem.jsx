@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { formatCurrency, formatDate } from "../utilities/helpers";
 
-const StyledInvoiceItem = styled.div`
+const StyledInvoiceItem = styled(Link)`
   width: 100%;
   padding: 2rem 4rem;
   border-radius: 1rem;
@@ -13,11 +13,14 @@ const StyledInvoiceItem = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
 `;
 
 const StyledInvoiceID = styled.h3`
   color: var(--text-color);
   font-size: 2rem;
+  order: 1;
 
   > span {
     color: var(--third-color);
@@ -26,14 +29,26 @@ const StyledInvoiceID = styled.h3`
 
 const StyledInvoiceDate = styled.span`
   font-size: 1.6rem;
+  order: 2;
+
+  @media screen and (max-width: 767px) {
+    order: 3;
+  }
 `;
 
 const StyledInvoiceOwner = styled.span`
   font-size: 1.6rem;
+  order: 3;
+
+  @media screen and (max-width: 767px) {
+    flex: 1;
+    order: 2;
+  }
 `;
 
 const StyledInvoiceTotal = styled.h2`
   font-size: 2rem;
+  order: 4;
 `;
 
 const StyledInvoiceStatus = styled.button`
@@ -49,6 +64,7 @@ const StyledInvoiceStatus = styled.button`
   border-radius: 8px;
   font-size: 1.6rem;
   font-weight: bold;
+  order: 5;
 
   &.paid {
     color: var(--paid-color);
@@ -66,8 +82,13 @@ const StyledInvoiceStatus = styled.button`
   }
 `;
 
-const StyledInvoiceLink = styled(Link)`
+const StyledInvoiceLink = styled.span`
   color: var(--logo-light-color);
+  order: 6;
+
+  @media screen and (max-width: 767px) {
+    display: none;
+  }
 
   > svg {
     font-size: 2.4rem;
@@ -76,7 +97,7 @@ const StyledInvoiceLink = styled(Link)`
 
 function InvoiceItem({ invoice }) {
   return (
-    <StyledInvoiceItem>
+    <StyledInvoiceItem to={`/invoice/${invoice.id}`}>
       <StyledInvoiceID>
         <span># </span>
         {invoice.id}

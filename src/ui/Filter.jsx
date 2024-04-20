@@ -3,12 +3,13 @@ import { useSearchParams } from "react-router-dom";
 import styled from "styled-components";
 
 const StyledFilterContainer = styled.div`
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.6rem;
   font-weight: bold;
-  gap: 2rem;
+  gap: 1rem;
   position: relative;
 `;
 
@@ -21,6 +22,10 @@ const StyledFilterInput = styled.select`
   padding: 6px 12px;
   cursor: pointer;
   font-size: 1.6rem;
+
+  @media screen and (max-width: 991px) {
+    width: 10rem;
+  }
 `;
 
 const StyledFilterOption = styled.option``;
@@ -45,7 +50,7 @@ function Filter() {
 
   return (
     <StyledFilterContainer>
-      <label>Filter By Status</label>
+      <label>{window.innerWidth <= 767 ? "Filter" : "Filter By Status"}</label>
       <StyledFilterInput
         id="filter"
         onChange={handleFilterChange}

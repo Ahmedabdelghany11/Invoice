@@ -12,7 +12,7 @@ import { getPaymentDue, getTotalItemsPrice } from "../utilities/helpers";
 import useAddInvoice from "../features/useAddInvoice";
 
 const StyledFormContainer = styled.div`
-  width: 50%;
+  width: 60%;
   overflow: auto;
   display: flex;
   flex-direction: column;
@@ -28,6 +28,11 @@ const StyledFormContainer = styled.div`
   @media screen and (max-width: 991px) {
     padding-left: 6rem;
     padding-top: 12rem;
+    width: 80%;
+  }
+
+  @media screen and (max-width: 767px) {
+    width: 100%;
   }
 
   &::-webkit-scrollbar {

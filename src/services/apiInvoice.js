@@ -49,3 +49,13 @@ export async function addInvoice(requestBody) {
         throw new Error(`Error adding this invoice: ${error.message}`);
     }
 }
+
+export async function deleteInvoice(id) {
+    try {
+        const updateReq = await axios.delete(`http://localhost:4000/invoices/${id}`);
+        
+        return updateReq.data
+    } catch (error) {
+        throw new Error(`Error delete invoice with ID ${id}: ${error.message}`);
+    }
+}

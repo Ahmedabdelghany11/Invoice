@@ -49,7 +49,6 @@ function Item({ item }) {
       itemPrice: item?.price || "",
     },
   });
-  console.log(item);
   const { errors } = formState;
   return (
     <StyledItemListRow>
