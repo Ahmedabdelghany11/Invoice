@@ -1,8 +1,6 @@
-import { useState } from "react";
-import { HiTrash } from "react-icons/hi";
 import styled from "styled-components";
-import FormElement from "./FormElement";
-import { useForm } from "react-hook-form";
+import Item from "./Item";
+import { useState } from "react";
 
 const StyledItemList = styled.div`
   width: 100%;
@@ -52,30 +50,19 @@ const StyledItemListBtn = styled.button`
   margin-top: 1rem;
 `;
 
-const StyledInput = styled.input`
-  width: 100%;
-  padding: 8px 12px;
-  border-radius: 8px;
-  border: none;
-  outline: none;
-  transition: var(--main-transition);
-  background-color: var(--secondary-color);
-  color: var(--text-color);
-`;
-
-function ItemList() {
-  const [itemListCount, setItemListCount] = useState(0);
-  const { register, formState } = useForm();
-  const { errors } = formState;
+function ItemList({ items }) {
+  const [itemsList, setItemsList] = useState(items ? items : []);
 
   function handleAddListItem() {
-    setItemListCount((count) => count + 1);
+    const newList = [...itemsList, {}];
+    setItemsList(newList);
   }
+
   return (
     <StyledItemList>
       <StyledItemListHeading>Item List</StyledItemListHeading>
 
-      {itemListCount > 0 && (
+      {itemsList && itemsList?.length > 0 && (
         <StyledItemListHeader>
           <StyledItemListColumn key="itemNameHeader">
             Item Name
@@ -87,53 +74,9 @@ function ItemList() {
         </StyledItemListHeader>
       )}
 
-      {itemListCount > 0 &&
-        Array.from({ length: itemListCount }, (_, index) => (
-          <StyledItemListRow key={`item${index}`}>
-            <FormElement key="itemName" error={errors?.itemName?.message}>
-              <StyledInput
-                id="itemName"
-                name="itemName"
-                placeholder="Banner Design"
-                type="text"
-                {...register("itemName", {
-                  required: "This field is required",
-                })}
-              />
-            </FormElement>
-
-            <FormElement
-              key="itemQuantity"
-              error={errors?.itemQuantity?.message}
-            >
-              <StyledInput
-                id="itemQuantity"
-                name="itemQuantity"
-                placeholder="1"
-                type="number"
-                {...register("itemQuantity", {
-                  required: "This field is required",
-                })}
-              />
-            </FormElement>
-
-            <FormElement key="itemPrice" error={errors?.itemPrice?.message}>
-              <StyledInput
-                id="itemPrice"
-                name="itemPrice"
-                placeholder="160.00"
-                type="number"
-                {...register("itemPrice", {
-                  required: "This field is required",
-                })}
-              />
-            </FormElement>
-            <StyledItemListColumn>160.00</StyledItemListColumn>
-            <StyledItemListColumn>
-              <HiTrash />
-            </StyledItemListColumn>
-          </StyledItemListRow>
-        ))}
+      {itemsList &&
+        itemsList?.length > 0 &&
+        itemsList.map((item) => <Item key={`item${item.name}`} item={item} />)}
 
       <StyledItemListBtn onClick={handleAddListItem}>
         Add Item

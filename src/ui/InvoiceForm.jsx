@@ -6,6 +6,10 @@ import ItemList from "./ItemList";
 import Overlay from "./Overlay";
 import { useRef } from "react";
 import useModalEffects from "../hooks/useModalEffects";
+import useUpdateInvoice from "../features/useUpdateInvoice";
+import Spinner from "./Spinner";
+import { getPaymentDue, getTotalItemsPrice } from "../utilities/helpers";
+import useAddInvoice from "../features/useAddInvoice";
 
 const StyledFormContainer = styled.div`
   width: 50%;
@@ -89,18 +93,16 @@ const StyledInput = styled.input`
   transition: var(--main-transition);
   background-color: var(--secondary-color);
   color: var(--text-color);
-`;
 
-const StyledSelect = styled.select`
-  width: 100%;
-  padding: 8px 12px;
-  border-radius: 8px;
-  border: none;
-  outline: none;
-  transition: var(--main-transition);
-  background-color: var(--secondary-color);
-  color: var(--text-color);
-  cursor: pointer;
+  &[type="number"]::-webkit-inner-spin-button,
+  &[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  &[type="number"] {
+    -moz-appearance: textfield;
+  }
 `;
 
 const StyledBtnsContainer = styled.div`
@@ -134,23 +136,125 @@ const StyledBtn = styled.button`
   }
 `;
 
-function InvoiceForm({ close, isOpen }) {
+function InvoiceForm({ invoice, close, isOpen }) {
   const { id } = useParams();
-  const { register, formState, handleSubmit } = useForm();
+  const { register, formState, handleSubmit } = useForm({
+    defaultValues: {
+      senderAddressStreet: invoice?.senderAddress.street || "",
+      senderAddressCity: invoice?.senderAddress.city || "",
+      senderAddressPostCode: invoice?.senderAddress.postCode || "",
+      senderAddressCountry: invoice?.senderAddress.country || "",
+      clientAddressStreet: invoice?.clientAddress.street || "",
+      clientAddressCity: invoice?.clientAddress.city || "",
+      clientAddressPostCode: invoice?.clientAddress.postCode || "",
+      clientAddressCountry: invoice?.clientAddress.country || "",
+      clientName: invoice?.clientName || "",
+      clientEmail: invoice?.clientEmail || "",
+      createdAt: invoice?.createdAt || "",
+      description: invoice?.description || "",
+      paymentTerms: invoice?.paymentTerms || "",
+    },
+  });
   const { errors } = formState;
   const formRef = useRef();
+  const { isLoading: isFormLoading, update } = useUpdateInvoice();
+  const { add } = useAddInvoice();
 
   useModalEffects(formRef, isOpen, close);
 
-  function onSubmit() {}
+  function onSubmit({
+    createdAt,
+    description,
+    paymentTerms,
+    clientName,
+    clientEmail,
+    senderAddressStreet,
+    senderAddressCity,
+    senderAddressPostCode,
+    senderAddressCountry,
+    clientAddressStreet,
+    clientAddressCity,
+    clientAddressPostCode,
+    clientAddressCountry,
+  }) {
+    if (invoice) {
+      update(
+        {
+          id: invoice.id,
+          createdAt,
+          paymentDue: getPaymentDue(createdAt, paymentTerms),
+          description,
+          paymentTerms,
+          clientName,
+          clientEmail,
+          status: invoice.status || "pending",
+          senderAddress: {
+            street: senderAddressStreet,
+            city: senderAddressCity,
+            postCode: senderAddressPostCode,
+            country: senderAddressCountry,
+          },
+          clientAddress: {
+            street: clientAddressStreet,
+            city: clientAddressCity,
+            postCode: clientAddressPostCode,
+            country: clientAddressCountry,
+          },
+          items: invoice.items,
+          total: getTotalItemsPrice(invoice.items),
+        },
+        {
+          onSuccess: () => {
+            close();
+          },
+        }
+      );
+    } else {
+      add(
+        {
+          id: invoice.id,
+          createdAt,
+          paymentDue: getPaymentDue(createdAt, paymentTerms),
+          description,
+          paymentTerms,
+          clientName,
+          clientEmail,
+          status: invoice.status || "pending",
+          senderAddress: {
+            street: senderAddressStreet,
+            city: senderAddressCity,
+            postCode: senderAddressPostCode,
+            country: senderAddressCountry,
+          },
+          clientAddress: {
+            street: clientAddressStreet,
+            city: clientAddressCity,
+            postCode: clientAddressPostCode,
+            country: clientAddressCountry,
+          },
+          items: invoice?.items || [],
+          total: invoice?.total,
+        },
+        {
+          onSuccess: () => {
+            close();
+          },
+        }
+      );
+    }
+  }
+
+  if (isFormLoading) return <Spinner />;
 
   return (
     <Overlay>
       <StyledFormContainer ref={formRef}>
-        <StyledHeading>
-          Edit <span>#</span>
-          {id}
-        </StyledHeading>
+        {invoice && (
+          <StyledHeading>
+            Edit <span>#</span>
+            {id}
+          </StyledHeading>
+        )}
         <StyledForm onSubmit={handleSubmit(onSubmit)} noValidate>
           <StyledFormBox>
             <StyledFormBoxHeading>Bill From</StyledFormBoxHeading>
@@ -158,17 +262,17 @@ function InvoiceForm({ close, isOpen }) {
             <StyledFormBoxBody>
               <StyledInputsRow>
                 <FormElement
-                  key="streetAddressFrom"
+                  key="senderAddressStreet"
                   label="Street Address"
-                  error={errors?.streetAddressFrom?.message}
+                  error={errors?.senderAddressStreet?.message}
                 >
                   <StyledInput
-                    id="streetAddressFrom"
+                    id="senderAddressStreet"
                     type="text"
                     placeholder="19 Union Terrace"
-                    name="streetAddressFrom"
-                    // disabled={isFormLoading}
-                    {...register("streetAddressFrom", {
+                    name="senderAddressStreet"
+                    disabled={isFormLoading}
+                    {...register("senderAddressStreet", {
                       required: "This field is required",
                     })}
                   />
@@ -177,49 +281,49 @@ function InvoiceForm({ close, isOpen }) {
 
               <StyledInputsRow>
                 <FormElement
-                  key="cityFrom"
+                  key="senderAddressCity"
                   label="City"
-                  error={errors?.cityFrom?.message}
+                  error={errors?.senderAddressCity?.message}
                 >
                   <StyledInput
-                    id="cityFrom"
+                    id="senderAddressCity"
                     type="text"
                     placeholder="London"
-                    name="cityFrom"
-                    // disabled={isFormLoading}
-                    {...register("cityFrom", {
+                    name="senderAddressCity"
+                    disabled={isFormLoading}
+                    {...register("senderAddressCity", {
                       required: "This field is required",
                     })}
                   />
                 </FormElement>
                 <FormElement
-                  key="postCodeFrom"
+                  key="senderAddressPostCode"
                   label="Post Code"
-                  error={errors?.postCodeFrom?.message}
+                  error={errors?.senderAddressPostCode?.message}
                 >
                   <StyledInput
-                    id="postCodeFrom"
+                    id="senderAddressPostCode"
                     type="text"
                     placeholder="E1 3EZ"
-                    name="postCodeFrom"
-                    // disabled={isFormLoading}
-                    {...register("postCodeFrom", {
+                    name="senderAddressPostCode"
+                    disabled={isFormLoading}
+                    {...register("senderAddressPostCode", {
                       required: "This field is required",
                     })}
                   />
                 </FormElement>
                 <FormElement
-                  key="countryFrom"
+                  key="senderAddressCountry"
                   label="Country"
-                  error={errors?.countryFrom?.message}
+                  error={errors?.senderAddressCountry?.message}
                 >
                   <StyledInput
-                    id="countryFrom"
+                    id="senderAddressCountry"
                     type="text"
                     placeholder="United Kingdom"
-                    name="countryFrom"
-                    // disabled={isFormLoading}
-                    {...register("countryFrom", {
+                    name="senderAddressCountry"
+                    disabled={isFormLoading}
+                    {...register("senderAddressCountry", {
                       required: "This field is required",
                     })}
                   />
@@ -242,7 +346,7 @@ function InvoiceForm({ close, isOpen }) {
                     type="text"
                     placeholder="Alex Grim"
                     name="clientName"
-                    // disabled={isFormLoading}
+                    disabled={isFormLoading}
                     {...register("clientName", {
                       required: "This field is required",
                     })}
@@ -261,7 +365,7 @@ function InvoiceForm({ close, isOpen }) {
                     type="email"
                     placeholder="client@mail.com"
                     name="clientEmail"
-                    // disabled={isFormLoading}
+                    disabled={isFormLoading}
                     {...register("clientEmail", {
                       required: "This field is required",
                       pattern: {
@@ -275,17 +379,17 @@ function InvoiceForm({ close, isOpen }) {
 
               <StyledInputsRow>
                 <FormElement
-                  key="streetAddressTo"
+                  key="clientAddressStreet"
                   label="Street Address"
-                  error={errors?.streetAddressTo?.message}
+                  error={errors?.clientAddressStreet?.message}
                 >
                   <StyledInput
-                    id="streetAddressTo"
+                    id="clientAddressStreet"
                     type="text"
                     placeholder="84 Chrunch Way"
-                    name="streetAddressTo"
-                    // disabled={isFormLoading}
-                    {...register("streetAddressTo", {
+                    name="clientAddressStreet"
+                    disabled={isFormLoading}
+                    {...register("clientAddressStreet", {
                       required: "This field is required",
                     })}
                   />
@@ -294,49 +398,49 @@ function InvoiceForm({ close, isOpen }) {
 
               <StyledInputsRow>
                 <FormElement
-                  key="cityTo"
+                  key="clientAddressCity"
                   label="City"
-                  error={errors?.cityTo?.message}
+                  error={errors?.clientAddressCity?.message}
                 >
                   <StyledInput
-                    id="cityTo"
+                    id="clientAddressCity"
                     type="text"
                     placeholder="London"
-                    name="cityTo"
-                    // disabled={isFormLoading}
-                    {...register("cityTo", {
+                    name="clientAddressCity"
+                    disabled={isFormLoading}
+                    {...register("clientAddressCity", {
                       required: "This field is required",
                     })}
                   />
                 </FormElement>
                 <FormElement
-                  key="postCodeTo"
+                  key="clientAddressPostCode"
                   label="Post Code"
-                  error={errors?.postCodeTo?.message}
+                  error={errors?.clientAddressPostCode?.message}
                 >
                   <StyledInput
-                    id="postCodeTo"
+                    id="clientAddressPostCode"
                     type="text"
                     placeholder="E1 3EZ"
-                    name="postCodeTo"
-                    // disabled={isFormLoading}
-                    {...register("postCodeTo", {
+                    name="clientAddressPostCode"
+                    disabled={isFormLoading}
+                    {...register("clientAddressPostCode", {
                       required: "This field is required",
                     })}
                   />
                 </FormElement>
                 <FormElement
-                  key="countryTo"
+                  key="clientAddressCountry"
                   label="Country"
-                  error={errors?.countryTo?.message}
+                  error={errors?.clientAddressCountry?.message}
                 >
                   <StyledInput
-                    id="countryTo"
+                    id="clientAddressCountry"
                     type="text"
                     placeholder="United Kingdom"
-                    name="countryTo"
-                    // disabled={isFormLoading}
-                    {...register("countryTo", {
+                    name="clientAddressCountry"
+                    disabled={isFormLoading}
+                    {...register("clientAddressCountry", {
                       required: "This field is required",
                     })}
                   />
@@ -349,16 +453,16 @@ function InvoiceForm({ close, isOpen }) {
             <StyledFormBoxBody>
               <StyledInputsRow>
                 <FormElement
-                  key="invoiceDate"
+                  key="createdAt"
                   label="Invoice Date"
-                  error={errors?.invoiceDate?.message}
+                  error={errors?.createdAt?.message}
                 >
                   <StyledInput
-                    id="invoiceDate"
+                    id="createdAt"
                     type="date"
-                    name="invoiceDate"
-                    // disabled={isFormLoading}
-                    {...register("invoiceDate", {
+                    name="createdAt"
+                    disabled={isFormLoading}
+                    {...register("createdAt", {
                       required: "This field is required",
                     })}
                   />
@@ -369,34 +473,31 @@ function InvoiceForm({ close, isOpen }) {
                   label="Payment Terms"
                   error={errors?.paymentTerms?.message}
                 >
-                  <StyledSelect
+                  <StyledInput
                     id="paymentTerms"
+                    type="number"
                     name="paymentTerms"
-                    // disabled={isFormLoading}
+                    disabled={isFormLoading}
                     {...register("paymentTerms", {
                       required: "This field is required",
                     })}
-                  >
-                    <option value="Net 30 Days" key="Net 30 Days">
-                      Net 30 Days
-                    </option>
-                  </StyledSelect>
+                  />
                 </FormElement>
               </StyledInputsRow>
 
               <StyledInputsRow>
                 <FormElement
-                  key="projectDescription"
+                  key="description"
                   label="Project Description"
-                  error={errors?.projectDescription?.message}
+                  error={errors?.description?.message}
                 >
                   <StyledInput
-                    id="projectDescription"
+                    id="description"
                     type="text"
                     placeholder="Graphic Design"
-                    name="projectDescription"
-                    // disabled={isFormLoading}
-                    {...register("projectDescription", {
+                    name="description"
+                    disabled={isFormLoading}
+                    {...register("description", {
                       required: "This field is required",
                     })}
                   />
@@ -405,13 +506,15 @@ function InvoiceForm({ close, isOpen }) {
             </StyledFormBoxBody>
           </StyledFormBox>
 
-          <ItemList />
+          <ItemList items={invoice?.items} />
 
           <StyledBtnsContainer>
             <StyledBtn className="cancel" onClick={close}>
               Cancel
             </StyledBtn>
-            <StyledBtn className="save">Save Changes</StyledBtn>
+            <StyledBtn className="save" disabled={isFormLoading} type="submit">
+              {invoice ? "Save Changes" : "Add Invoice"}
+            </StyledBtn>
           </StyledBtnsContainer>
         </StyledForm>
       </StyledFormContainer>

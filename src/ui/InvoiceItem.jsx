@@ -90,7 +90,7 @@ function InvoiceItem({ invoice }) {
         <GoDotFill />
         {invoice.status}
       </StyledInvoiceStatus>
-      <StyledInvoiceLink to="/invoice/RT3080">
+      <StyledInvoiceLink to={`/invoice/${invoice.id}`}>
         <HiChevronRight />
       </StyledInvoiceLink>
     </StyledInvoiceItem>

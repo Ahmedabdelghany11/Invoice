@@ -1,9 +1,13 @@
 import styled from "styled-components";
 import InvoiceForm from "./InvoiceForm";
 import { useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { HiChevronLeft } from "react-icons/hi";
 import { GoDotFill } from "react-icons/go";
+import useInvoice from "../features/useInvoice";
+import Spinner from "./Spinner";
+import { formatCurrency, formatDate } from "../utilities/helpers";
+import useUpdateInvoice from "../features/useUpdateInvoice";
 
 const StyledInvoiceCartContainer = styled.div`
   position: relative;
@@ -65,6 +69,7 @@ const StatusValue = styled.span`
   border-radius: 6px;
   font-size: 1.6rem;
   font-weight: bold;
+  text-transform: capitalize;
 
   &.paid {
     color: var(--paid-color);
@@ -288,8 +293,9 @@ const StyledCartItemListFooter = styled.div`
 `;
 
 function InvoiceCart() {
+  const { isLoading, invoice } = useInvoice();
+  const { isLoading: isFormLoading, update } = useUpdateInvoice();
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const { id } = useParams();
 
   function openForm() {
     setIsFormOpen(true);
@@ -298,6 +304,12 @@ function InvoiceCart() {
   function closeForm() {
     setIsFormOpen(false);
   }
+
+  function handleUpdateStatus() {
+    update({ ...invoice, status: "paid" });
+  }
+
+  if (isLoading || isFormLoading) return <Spinner />;
 
   return (
     <StyledInvoiceCartContainer>
@@ -310,9 +322,9 @@ function InvoiceCart() {
         <StyledStatusBox>
           <StyledStatus>
             Status
-            <StatusValue className="paid">
+            <StatusValue className={invoice.status}>
               <GoDotFill />
-              Paid
+              {invoice.status}
             </StatusValue>
           </StyledStatus>
           <StyledStatusBtnsContainer>
@@ -320,7 +332,15 @@ function InvoiceCart() {
               Edit
             </StyledStatusBtn>
             <StyledStatusBtn className="delete">Delete</StyledStatusBtn>
-            <StyledStatusBtn className="mark">Mark as Paid</StyledStatusBtn>
+            {invoice.status !== "paid" && (
+              <StyledStatusBtn
+                className="mark"
+                onClick={handleUpdateStatus}
+                disabled={isFormLoading}
+              >
+                Mark as Paid
+              </StyledStatusBtn>
+            )}
           </StyledStatusBtnsContainer>
         </StyledStatusBox>
 
@@ -329,17 +349,17 @@ function InvoiceCart() {
             <StyledCartContentInfo>
               <StyledCartContentInfoHeading>
                 <span>#</span>
-                {id}
+                {invoice.id}
               </StyledCartContentInfoHeading>
               <StyledCartContentInfoDescription>
-                Graphic Design
+                {invoice.description}
               </StyledCartContentInfoDescription>
             </StyledCartContentInfo>
             <StyledCartContentAddressBox>
-              <span>19 Union Terrace</span>
-              <span>London</span>
-              <span>E1 3EZ</span>
-              <span>United Kingdom</span>
+              <span>{invoice.senderAddress.street}</span>
+              <span>{invoice.senderAddress.city}</span>
+              <span>{invoice.senderAddress.postCode}</span>
+              <span>{invoice.senderAddress.country}</span>
             </StyledCartContentAddressBox>
           </StyledCartContentHeader>
 
@@ -349,82 +369,79 @@ function InvoiceCart() {
                 <StyledCartPaymentDateHeading>
                   Invoice Date
                 </StyledCartPaymentDateHeading>
-                21 Aug 2021
+                {formatDate(new Date(invoice.createdAt).getTime())}
               </StyledCartPaymentDate>
               <StyledCartPaymentDate>
                 <StyledCartPaymentDateHeading>
                   Payment Due
                 </StyledCartPaymentDateHeading>
-                20 Sep 2021
+                {formatDate(new Date(invoice.paymentDue).getTime())}
               </StyledCartPaymentDate>
             </StyledCartPaymentDatesBox>
             <StyledCartClientBox>
               <span>Bill to</span>
-              <StyledCartClient>Alex Grim</StyledCartClient>
+              <StyledCartClient>{invoice.clientName}</StyledCartClient>
               <StyledCartClientAddress>
-                <span>84 Chrunch Way</span>
-                <span>Bradford</span>
-                <span>BD1 9PB</span>
-                <span></span>
+                <span>{invoice.clientAddress.street}</span>
+                <span>{invoice.clientAddress.city}</span>
+                <span>{invoice.clientAddress.postCode}</span>
+                <span>{invoice.clientAddress.country}</span>
               </StyledCartClientAddress>
             </StyledCartClientBox>
             <StyledCartSentToBox>
               <StyledCartSentToBoxHeading>Sent To</StyledCartSentToBoxHeading>
-              <StyledCartSentToEmail>alexgrim@mail.com</StyledCartSentToEmail>
+              <StyledCartSentToEmail>
+                {invoice.clientEmail}
+              </StyledCartSentToEmail>
             </StyledCartSentToBox>
           </StyledCartPaymentContent>
 
-          <StyledCartItemListContainer>
-            <StyledCartItemList>
-              <StyledCartItemListHeader>
-                <StyledCartItemListColumn key="itemNameHeader">
-                  Item Name
-                </StyledCartItemListColumn>
-                <StyledCartItemListColumn key="qtyHeader">
-                  QTY.
-                </StyledCartItemListColumn>
-                <StyledCartItemListColumn key="priceHeader">
-                  Price
-                </StyledCartItemListColumn>
-                <StyledCartItemListColumn key="totalHeader">
-                  Total
-                </StyledCartItemListColumn>
-              </StyledCartItemListHeader>
+          {invoice.items.length > 0 && (
+            <StyledCartItemListContainer>
+              <StyledCartItemList>
+                <StyledCartItemListHeader>
+                  <StyledCartItemListColumn key="itemNameHeader">
+                    Item Name
+                  </StyledCartItemListColumn>
+                  <StyledCartItemListColumn key="qtyHeader">
+                    QTY.
+                  </StyledCartItemListColumn>
+                  <StyledCartItemListColumn key="priceHeader">
+                    Price
+                  </StyledCartItemListColumn>
+                  <StyledCartItemListColumn key="totalHeader">
+                    Total
+                  </StyledCartItemListColumn>
+                </StyledCartItemListHeader>
 
-              <StyledCartItemListRow>
-                <StyledCartItemListColumn key="itemName">
-                  Banner Design
-                </StyledCartItemListColumn>
-                <StyledCartItemListColumn key="qty">1</StyledCartItemListColumn>
-                <StyledCartItemListColumn key="price">
-                  156.00
-                </StyledCartItemListColumn>
-                <StyledCartItemListColumn key="total">
-                  156.00
-                </StyledCartItemListColumn>
-              </StyledCartItemListRow>
-
-              <StyledCartItemListRow>
-                <StyledCartItemListColumn key="itemName">
-                  Email Design
-                </StyledCartItemListColumn>
-                <StyledCartItemListColumn key="qty">2</StyledCartItemListColumn>
-                <StyledCartItemListColumn key="price">
-                  200.00
-                </StyledCartItemListColumn>
-                <StyledCartItemListColumn key="total">
-                  400.00
-                </StyledCartItemListColumn>
-              </StyledCartItemListRow>
-            </StyledCartItemList>
-            <StyledCartItemListFooter>
-              Amount Due
-              <span>556.00</span>
-            </StyledCartItemListFooter>
-          </StyledCartItemListContainer>
+                {invoice.items.map((item) => (
+                  <StyledCartItemListRow key={item.name}>
+                    <StyledCartItemListColumn>
+                      {item.name}
+                    </StyledCartItemListColumn>
+                    <StyledCartItemListColumn>
+                      {item.quantity}
+                    </StyledCartItemListColumn>
+                    <StyledCartItemListColumn>
+                      {formatCurrency(item.price)}
+                    </StyledCartItemListColumn>
+                    <StyledCartItemListColumn>
+                      {formatCurrency(item.total)}
+                    </StyledCartItemListColumn>
+                  </StyledCartItemListRow>
+                ))}
+              </StyledCartItemList>
+              <StyledCartItemListFooter>
+                Amount Due
+                <span>{formatCurrency(invoice.total)}</span>
+              </StyledCartItemListFooter>
+            </StyledCartItemListContainer>
+          )}
         </StyledCartContent>
       </StyledInvoiceCart>
-      {isFormOpen && <InvoiceForm close={closeForm} isOpen={isFormOpen} />}
+      {isFormOpen && (
+        <InvoiceForm close={closeForm} isOpen={isFormOpen} invoice={invoice} />
+      )}
     </StyledInvoiceCartContainer>
   );
 }

@@ -2,6 +2,8 @@ import styled from "styled-components";
 import Filter from "./Filter";
 import { HiPlusCircle } from "react-icons/hi";
 import useInvoicesList from "../features/useInvoicesList";
+import { useState } from "react";
+import InvoiceForm from "./InvoiceForm";
 
 const StyledHeadingContainer = styled.section`
   width: 100%;
@@ -54,6 +56,15 @@ const StyledAddBtn = styled.button`
 
 function MainHeading() {
   const { isLoading, invoices } = useInvoicesList();
+  const [isFormOpen, setIsFormOpen] = useState(false);
+
+  function openForm() {
+    setIsFormOpen(true);
+  }
+
+  function closeForm() {
+    setIsFormOpen(false);
+  }
 
   if (isLoading) return null;
 
@@ -68,10 +79,11 @@ function MainHeading() {
         </StyledInvoicesCount>
       </StyledHeadingBox>
       <Filter />
-      <StyledAddBtn>
+      <StyledAddBtn onClick={openForm}>
         <HiPlusCircle />
         New Invoice
       </StyledAddBtn>
+      {isFormOpen && <InvoiceForm close={closeForm} isOpen={isFormOpen} />}
     </StyledHeadingContainer>
   );
 }
