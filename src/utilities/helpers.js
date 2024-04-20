@@ -26,5 +26,5 @@ export function getPaymentDue(dateString, paymentTerms) {
 }
 
 export function getTotalItemsPrice(items) {
-  items.reduce((item, acc) => acc + item.total, 0);
+  return items.reduce((item, acc) => acc + item.total, 0);
 }
