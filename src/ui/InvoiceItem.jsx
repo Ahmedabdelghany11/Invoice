@@ -96,22 +96,24 @@ const StyledInvoiceLink = styled.span`
 `;
 
 function InvoiceItem({ invoice }) {
+  const { id, paymentDue, clientName, total, status } = invoice;
+
   return (
-    <StyledInvoiceItem to={`/invoice/${invoice.id}`}>
+    <StyledInvoiceItem to={`/invoice/${id}`}>
       <StyledInvoiceID>
         <span># </span>
-        {invoice.id}
+        {id}
       </StyledInvoiceID>
       <StyledInvoiceDate>
-        Due {formatDate(new Date(invoice.paymentDue).getTime())}
+        Due {formatDate(new Date(paymentDue).getTime())}
       </StyledInvoiceDate>
-      <StyledInvoiceOwner>{invoice.clientName}</StyledInvoiceOwner>
-      <StyledInvoiceTotal>{formatCurrency(invoice.total)}</StyledInvoiceTotal>
-      <StyledInvoiceStatus className={invoice.status}>
+      <StyledInvoiceOwner>{clientName}</StyledInvoiceOwner>
+      <StyledInvoiceTotal>{formatCurrency(total)}</StyledInvoiceTotal>
+      <StyledInvoiceStatus className={status}>
         <GoDotFill />
-        {invoice.status}
+        {status}
       </StyledInvoiceStatus>
-      <StyledInvoiceLink to={`/invoice/${invoice.id}`}>
+      <StyledInvoiceLink to={`/invoice/${id}`}>
         <HiChevronRight />
       </StyledInvoiceLink>
     </StyledInvoiceItem>

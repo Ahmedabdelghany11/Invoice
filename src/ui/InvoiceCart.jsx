@@ -1,14 +1,16 @@
 import styled from "styled-components";
 import InvoiceForm from "./InvoiceForm";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { HiChevronLeft } from "react-icons/hi";
 import { GoDotFill } from "react-icons/go";
-import useInvoice from "../features/useInvoice";
-import Spinner from "./Spinner";
 import { formatCurrency, formatDate } from "../utilities/helpers";
-import useUpdateInvoice from "../features/useUpdateInvoice";
-import useDeleteInvoice from "../features/useDeleteInvoice";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  deleteInvoiceFromList,
+  getInvoiceByID,
+  updateInvoice,
+} from "../features/invoiceSlice";
 
 const StyledInvoiceCartContainer = styled.div`
   position: relative;
@@ -311,11 +313,24 @@ const StyledCartItemListFooter = styled.div`
 `;
 
 function InvoiceCart() {
-  const { isLoading, invoice } = useInvoice();
-  const { isLoading: isFormLoading, update } = useUpdateInvoice();
-  const { deleteInvoice } = useDeleteInvoice();
+  const { id: idParam } = useParams();
+  const invoice = useSelector(getInvoiceByID(idParam));
+  const dispatch = useDispatch();
   const [isFormOpen, setIsFormOpen] = useState(false);
-
+  const navigate = useNavigate();
+  const {
+    status,
+    id,
+    description,
+    senderAddress,
+    createdAt,
+    paymentDue,
+    clientName,
+    clientAddress,
+    clientEmail,
+    items,
+    total,
+  } = invoice;
   function openForm() {
     setIsFormOpen(true);
   }
@@ -324,15 +339,14 @@ function InvoiceCart() {
     setIsFormOpen(false);
   }
 
-  function handleUpdateStatus() {
-    update({ ...invoice, status: "paid" });
+  function handleUpdateStatus(newStatus) {
+    dispatch(updateInvoice({ ...invoice, status: newStatus }));
   }
 
   function handleDeleteInvoice() {
-    deleteInvoice(invoice.id);
+    dispatch(deleteInvoiceFromList(id));
+    navigate("/");
   }
-
-  if (isLoading || isFormLoading) return <Spinner />;
 
   return (
     <StyledInvoiceCartContainer>
@@ -345,9 +359,9 @@ function InvoiceCart() {
         <StyledStatusBox>
           <StyledStatus>
             Status
-            <StatusValue className={invoice.status}>
+            <StatusValue className={status}>
               <GoDotFill />
-              {invoice.status}
+              {status}
             </StatusValue>
           </StyledStatus>
           <StyledStatusBtnsContainer>
@@ -357,13 +371,19 @@ function InvoiceCart() {
             <StyledStatusBtn className="delete" onClick={handleDeleteInvoice}>
               Delete
             </StyledStatusBtn>
-            {invoice.status !== "paid" && (
+            {status !== "paid" ? (
               <StyledStatusBtn
                 className="mark"
-                onClick={handleUpdateStatus}
-                disabled={isFormLoading}
+                onClick={() => handleUpdateStatus("paid")}
               >
                 Mark as Paid
+              </StyledStatusBtn>
+            ) : (
+              <StyledStatusBtn
+                className="mark"
+                onClick={() => handleUpdateStatus("pending")}
+              >
+                Mark as Pending
               </StyledStatusBtn>
             )}
           </StyledStatusBtnsContainer>
@@ -374,17 +394,17 @@ function InvoiceCart() {
             <StyledCartContentInfo>
               <StyledCartContentInfoHeading>
                 <span># </span>
-                {invoice.id}
+                {id}
               </StyledCartContentInfoHeading>
               <StyledCartContentInfoDescription>
-                {invoice.description}
+                {description}
               </StyledCartContentInfoDescription>
             </StyledCartContentInfo>
             <StyledCartContentAddressBox>
-              <span>{invoice.senderAddress.street}</span>
-              <span>{invoice.senderAddress.city}</span>
-              <span>{invoice.senderAddress.postCode}</span>
-              <span>{invoice.senderAddress.country}</span>
+              <span>{senderAddress.street}</span>
+              <span>{senderAddress.city}</span>
+              <span>{senderAddress.postCode}</span>
+              <span>{senderAddress.country}</span>
             </StyledCartContentAddressBox>
           </StyledCartContentHeader>
 
@@ -394,37 +414,35 @@ function InvoiceCart() {
                 <StyledCartPaymentDateHeading>
                   Invoice Date
                 </StyledCartPaymentDateHeading>
-                {formatDate(new Date(invoice.createdAt).getTime())}
+                {formatDate(new Date(createdAt).getTime())}
               </StyledCartPaymentDate>
               <StyledCartPaymentDate>
                 <StyledCartPaymentDateHeading>
                   Payment Due
                 </StyledCartPaymentDateHeading>
-                {formatDate(new Date(invoice.paymentDue).getTime())}
+                {formatDate(new Date(paymentDue).getTime())}
               </StyledCartPaymentDate>
             </StyledCartPaymentDatesBox>
             <StyledCartClientBox>
               <span>Bill to</span>
-              <StyledCartClient>{invoice.clientName}</StyledCartClient>
+              <StyledCartClient>{clientName}</StyledCartClient>
               <StyledCartClientAddress>
-                <span>{invoice.clientAddress.street}</span>
-                <span>{invoice.clientAddress.city}</span>
-                <span>{invoice.clientAddress.postCode}</span>
-                <span>{invoice.clientAddress.country}</span>
+                <span>{clientAddress.street}</span>
+                <span>{clientAddress.city}</span>
+                <span>{clientAddress.postCode}</span>
+                <span>{clientAddress.country}</span>
               </StyledCartClientAddress>
             </StyledCartClientBox>
             <StyledCartSentToBox>
               <StyledCartSentToBoxHeading>Sent To</StyledCartSentToBoxHeading>
-              <StyledCartSentToEmail>
-                {invoice.clientEmail}
-              </StyledCartSentToEmail>
+              <StyledCartSentToEmail>{clientEmail}</StyledCartSentToEmail>
             </StyledCartSentToBox>
           </StyledCartPaymentContent>
 
-          {invoice.items.length > 0 && (
+          {items.length > 0 && (
             <StyledCartItemListContainer>
               <StyledCartItemList>
-                <StyledCartItemListHeader>
+                <StyledCartItemListHeader key="itemHeader">
                   <StyledCartItemListColumn key="itemNameHeader">
                     Item Name
                   </StyledCartItemListColumn>
@@ -439,8 +457,8 @@ function InvoiceCart() {
                   </StyledCartItemListColumn>
                 </StyledCartItemListHeader>
 
-                {invoice.items.map((item) => (
-                  <StyledCartItemListRow key={item.name}>
+                {items.map((item) => (
+                  <StyledCartItemListRow key={item.name ? item.name : `item-`}>
                     <StyledCartItemListColumn>
                       {item.name}
                     </StyledCartItemListColumn>
@@ -458,7 +476,7 @@ function InvoiceCart() {
               </StyledCartItemList>
               <StyledCartItemListFooter>
                 Amount Due
-                <span>{formatCurrency(invoice.total)}</span>
+                <span>{formatCurrency(total)}</span>
               </StyledCartItemListFooter>
             </StyledCartItemListContainer>
           )}

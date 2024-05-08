@@ -50,6 +50,7 @@ function Item({ item }) {
     },
   });
   const { errors } = formState;
+
   return (
     <StyledItemListRow>
       <FormElement key="itemName" error={errors?.itemName?.message}>

@@ -1,8 +1,9 @@
 import styled from "styled-components";
 import EmptyInvoices from "./EmptyInvoices";
 import InvoiceItem from "./InvoiceItem";
-import useInvoicesList from "../features/useInvoicesList";
-import Spinner from "./Spinner";
+import { useSelector } from "react-redux";
+import { useSearchParams } from "react-router-dom";
+import { getInvoices } from "../features/invoiceSlice";
 
 const StyledInvoicesList = styled.div`
   width: 100%;
@@ -12,15 +13,25 @@ const StyledInvoicesList = styled.div`
 `;
 
 function InvoicesList() {
-  const { isLoading, invoices } = useInvoicesList();
+  const invoices = useSelector(getInvoices);
+  const [searchParams] = useSearchParams();
+  const filterParam = !searchParams.get("filter")
+    ? ""
+    : searchParams.get("filter");
 
-  if (isLoading) return <Spinner />;
+  let filteredInvoices = [...invoices];
+
+  if (filterParam) {
+    filteredInvoices = invoices.filter(
+      (invoice) => invoice.status == filterParam
+    );
+  }
 
   return (
     <StyledInvoicesList>
       {!invoices
-        ? invoices?.length === 0 && <EmptyInvoices />
-        : invoices?.map((invoice) => (
+        ? filteredInvoices === 0 && <EmptyInvoices />
+        : filteredInvoices?.map((invoice) => (
             <InvoiceItem key={invoice.id} invoice={invoice} />
           ))}
     </StyledInvoicesList>

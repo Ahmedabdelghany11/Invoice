@@ -1,9 +1,10 @@
 import styled from "styled-components";
 import Filter from "./Filter";
 import { HiPlusCircle } from "react-icons/hi";
-import useInvoicesList from "../features/useInvoicesList";
 import { useState } from "react";
 import InvoiceForm from "./InvoiceForm";
+import { useSelector } from "react-redux";
+import { getInvoices, getInvoicesQuantity } from "../features/invoiceSlice";
 
 const StyledHeadingContainer = styled.section`
   width: 100%;
@@ -63,7 +64,8 @@ const StyledAddBtn = styled.button`
 `;
 
 function MainHeading() {
-  const { isLoading, invoices } = useInvoicesList();
+  const invoices = useSelector(getInvoices);
+  const invoicesQuantity = useSelector(getInvoicesQuantity);
   const [isFormOpen, setIsFormOpen] = useState(false);
 
   function openForm() {
@@ -74,8 +76,6 @@ function MainHeading() {
     setIsFormOpen(false);
   }
 
-  if (isLoading) return null;
-
   return (
     <StyledHeadingContainer>
       <StyledHeadingBox>
@@ -83,8 +83,8 @@ function MainHeading() {
         <StyledInvoicesCount>
           {invoices
             ? window.innerWidth <= 767
-              ? `${invoices.length} invoices`
-              : `There are ${invoices.length} total invoices`
+              ? `${invoicesQuantity} invoices`
+              : `There are ${invoicesQuantity} total invoices`
             : "No Invoices"}
         </StyledInvoicesCount>
       </StyledHeadingBox>

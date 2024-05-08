@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import Item from "./Item";
-import { useState } from "react";
+import { checkAvailabiltyToAddItem } from "../utilities/helpers";
 
 const StyledItemList = styled.div`
   width: 100%;
@@ -50,19 +50,31 @@ const StyledItemListBtn = styled.button`
   margin-top: 1rem;
 `;
 
-function ItemList({ items }) {
-  const [itemsList, setItemsList] = useState(items ? items : []);
-
+function ItemList({ items, editItemsList }) {
   function handleAddListItem() {
-    const newList = [...itemsList, {}];
-    setItemsList(newList);
+    const newItemsList = [...items, { name: "" }];
+    editItemsList(newItemsList);
+  }
+
+  function updateListItem(body) {
+    let newItemsList = [...items];
+    const itemIndex = newItemsList.findIndex((item) => item.name === body.name);
+
+    if (
+      newItemsList[itemIndex]?.name !== body.name ||
+      newItemsList[itemIndex]?.quantity !== body.quantity ||
+      newItemsList[itemIndex]?.price !== body.price
+    ) {
+      newItemsList[itemIndex] = { ...body };
+      editItemsList(newItemsList);
+    }
   }
 
   return (
     <StyledItemList>
       <StyledItemListHeading>Item List</StyledItemListHeading>
 
-      {itemsList && itemsList?.length > 0 && (
+      {items && items?.length > 0 && (
         <StyledItemListHeader>
           <StyledItemListColumn key="itemNameHeader">
             Item Name
@@ -74,13 +86,21 @@ function ItemList({ items }) {
         </StyledItemListHeader>
       )}
 
-      {itemsList &&
-        itemsList?.length > 0 &&
-        itemsList.map((item) => <Item key={`item${item.name}`} item={item} />)}
+      {items &&
+        items?.length > 0 &&
+        items?.map((item) => (
+          <Item
+            key={`item${item.name}`}
+            item={item}
+            updateListItem={updateListItem}
+          />
+        ))}
 
-      <StyledItemListBtn onClick={handleAddListItem}>
-        Add Item
-      </StyledItemListBtn>
+      {(items?.length === 0 || checkAvailabiltyToAddItem(items)) && (
+        <StyledItemListBtn onClick={handleAddListItem}>
+          Add Item
+        </StyledItemListBtn>
+      )}
     </StyledItemList>
   );
 }

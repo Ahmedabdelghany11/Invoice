@@ -26,5 +26,15 @@ export function getPaymentDue(dateString, paymentTerms) {
 }
 
 export function getTotalItemsPrice(items) {
-  return items.reduce((item, acc) => acc + item.total, 0);
+  return items.reduce((item, acc) => acc + (item?.total || 0), 0);
+}
+
+export function checkAvailabiltyToAddItem(items) {
+  let isAvailable = true;
+
+  items.forEach((item) => {
+    if (item.name === "") isAvailable = false
+  })
+
+  return isAvailable;
 }
