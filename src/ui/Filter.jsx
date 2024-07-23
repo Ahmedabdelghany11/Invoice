@@ -50,7 +50,7 @@ function Filter() {
 
   return (
     <StyledFilterContainer>
-      <label>{window.innerWidth <= 767 ? "Filter" : "Filter By Status"}</label>
+      <label>{window.innerWidth <= 767 ? "" : "Filter By Status"}</label>
       <StyledFilterInput
         id="filter"
         onChange={handleFilterChange}

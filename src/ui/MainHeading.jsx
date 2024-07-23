@@ -3,13 +3,11 @@ import Filter from "./Filter";
 import { HiPlusCircle } from "react-icons/hi";
 import { useState } from "react";
 import InvoiceForm from "./InvoiceForm";
-import { useSelector } from "react-redux";
-import { getInvoices, getInvoicesQuantity } from "../features/invoiceSlice";
 
 const StyledHeadingContainer = styled.section`
   width: 100%;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 2rem;
   position: relative;
@@ -63,9 +61,7 @@ const StyledAddBtn = styled.button`
   }
 `;
 
-function MainHeading() {
-  const invoices = useSelector(getInvoices);
-  const invoicesQuantity = useSelector(getInvoicesQuantity);
+function MainHeading({ invoices }) {
   const [isFormOpen, setIsFormOpen] = useState(false);
 
   function openForm() {
@@ -83,15 +79,15 @@ function MainHeading() {
         <StyledInvoicesCount>
           {invoices
             ? window.innerWidth <= 767
-              ? `${invoicesQuantity} invoices`
-              : `There are ${invoicesQuantity} total invoices`
+              ? `${invoices?.length} invoices`
+              : `There are ${invoices?.length} total invoices`
             : "No Invoices"}
         </StyledInvoicesCount>
       </StyledHeadingBox>
       <Filter />
       <StyledAddBtn onClick={openForm}>
         <HiPlusCircle />
-        {window.innerWidth <= 767 ? "New" : "New Invoice"}
+        {window.innerWidth <= 767 ? "" : "New Invoice"}
       </StyledAddBtn>
       {isFormOpen && <InvoiceForm close={closeForm} isOpen={isFormOpen} />}
     </StyledHeadingContainer>

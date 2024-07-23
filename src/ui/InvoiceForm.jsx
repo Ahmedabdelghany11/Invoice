@@ -26,7 +26,8 @@ const StyledFormContainer = styled.div`
   padding-left: 12rem;
 
   @media screen and (max-width: 991px) {
-    padding-left: 6rem;
+    padding-left: 16px;
+    padding-right: 16px;
     padding-top: 12rem;
     width: 80%;
   }

@@ -10,6 +10,10 @@ const StyledOverlay = styled.div`
   background-color: var(--overlay-background);
   backdrop-filter: blur(4px);
   overflow: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
 
   &::-webkit-scrollbar {
     width: 0;
