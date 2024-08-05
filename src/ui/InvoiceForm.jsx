@@ -10,6 +10,7 @@ import { getPaymentDue, getTotalItemsPrice } from "../utilities/helpers";
 import { useDispatch } from "react-redux";
 import { addInvoiceToList, updateInvoice } from "../features/invoiceSlice";
 import { v4 as uuidv4 } from "uuid";
+import Spinner from "./Spinner";
 
 const StyledFormContainer = styled.div`
   width: 60%;
@@ -164,6 +165,7 @@ function InvoiceForm({ invoice, close, isOpen }) {
   const { errors } = formState;
   const formRef = useRef();
   const [itemsList, setItemsList] = useState(invoice?.items || []);
+  const [isFormLoading, setIsFormLoading] = useState(false);
   const dispatch = useDispatch();
 
   useModalEffects(formRef, isOpen, close);
@@ -183,6 +185,7 @@ function InvoiceForm({ invoice, close, isOpen }) {
     clientAddressPostCode,
     clientAddressCountry,
   }) {
+    setIsFormLoading(true);
     if (invoice) {
       dispatch(
         updateInvoice({
@@ -240,10 +243,12 @@ function InvoiceForm({ invoice, close, isOpen }) {
       );
       close();
     }
+    setIsFormLoading(false);
   }
 
   return (
     <Overlay>
+      {isFormLoading && <Spinner />}
       <StyledFormContainer ref={formRef}>
         {invoice && (
           <StyledHeading>
@@ -267,7 +272,7 @@ function InvoiceForm({ invoice, close, isOpen }) {
                     type="text"
                     placeholder="19 Union Terrace"
                     name="senderAddressStreet"
-                    // disabled={isFormLoading}
+                    disabled={isFormLoading}
                     {...register("senderAddressStreet", {
                       required: "This field is required",
                     })}
@@ -286,7 +291,7 @@ function InvoiceForm({ invoice, close, isOpen }) {
                     type="text"
                     placeholder="London"
                     name="senderAddressCity"
-                    // disabled={isFormLoading}
+                    disabled={isFormLoading}
                     {...register("senderAddressCity", {
                       required: "This field is required",
                     })}
@@ -302,7 +307,7 @@ function InvoiceForm({ invoice, close, isOpen }) {
                     type="text"
                     placeholder="E1 3EZ"
                     name="senderAddressPostCode"
-                    // disabled={isFormLoading}
+                    disabled={isFormLoading}
                     {...register("senderAddressPostCode", {
                       required: "This field is required",
                     })}
@@ -318,7 +323,7 @@ function InvoiceForm({ invoice, close, isOpen }) {
                     type="text"
                     placeholder="United Kingdom"
                     name="senderAddressCountry"
-                    // disabled={isFormLoading}
+                    disabled={isFormLoading}
                     {...register("senderAddressCountry", {
                       required: "This field is required",
                     })}
@@ -342,7 +347,7 @@ function InvoiceForm({ invoice, close, isOpen }) {
                     type="text"
                     placeholder="Alex Grim"
                     name="clientName"
-                    // disabled={isFormLoading}
+                    disabled={isFormLoading}
                     {...register("clientName", {
                       required: "This field is required",
                     })}
@@ -361,7 +366,7 @@ function InvoiceForm({ invoice, close, isOpen }) {
                     type="email"
                     placeholder="client@mail.com"
                     name="clientEmail"
-                    // disabled={isFormLoading}
+                    disabled={isFormLoading}
                     {...register("clientEmail", {
                       required: "This field is required",
                       pattern: {
@@ -384,7 +389,7 @@ function InvoiceForm({ invoice, close, isOpen }) {
                     type="text"
                     placeholder="84 Chrunch Way"
                     name="clientAddressStreet"
-                    // disabled={isFormLoading}
+                    disabled={isFormLoading}
                     {...register("clientAddressStreet", {
                       required: "This field is required",
                     })}
@@ -403,7 +408,7 @@ function InvoiceForm({ invoice, close, isOpen }) {
                     type="text"
                     placeholder="London"
                     name="clientAddressCity"
-                    // disabled={isFormLoading}
+                    disabled={isFormLoading}
                     {...register("clientAddressCity", {
                       required: "This field is required",
                     })}
@@ -419,7 +424,7 @@ function InvoiceForm({ invoice, close, isOpen }) {
                     type="text"
                     placeholder="E1 3EZ"
                     name="clientAddressPostCode"
-                    // disabled={isFormLoading}
+                    disabled={isFormLoading}
                     {...register("clientAddressPostCode", {
                       required: "This field is required",
                     })}
@@ -435,7 +440,7 @@ function InvoiceForm({ invoice, close, isOpen }) {
                     type="text"
                     placeholder="United Kingdom"
                     name="clientAddressCountry"
-                    // disabled={isFormLoading}
+                    disabled={isFormLoading}
                     {...register("clientAddressCountry", {
                       required: "This field is required",
                     })}
@@ -457,7 +462,7 @@ function InvoiceForm({ invoice, close, isOpen }) {
                     id="createdAt"
                     type="date"
                     name="createdAt"
-                    // disabled={isFormLoading}
+                    disabled={isFormLoading}
                     {...register("createdAt", {
                       required: "This field is required",
                     })}
@@ -473,7 +478,7 @@ function InvoiceForm({ invoice, close, isOpen }) {
                     id="paymentTerms"
                     type="number"
                     name="paymentTerms"
-                    // disabled={isFormLoading}
+                    disabled={isFormLoading}
                     {...register("paymentTerms", {
                       required: "This field is required",
                     })}
@@ -492,7 +497,7 @@ function InvoiceForm({ invoice, close, isOpen }) {
                     type="text"
                     placeholder="Graphic Design"
                     name="description"
-                    // disabled={isFormLoading}
+                    disabled={isFormLoading}
                     {...register("description", {
                       required: "This field is required",
                     })}

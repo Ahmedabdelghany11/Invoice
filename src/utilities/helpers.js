@@ -2,11 +2,10 @@ export function formatCurrency(value) {
   return new Intl.NumberFormat("en", {
     style: "currency",
     currency: "USD",
-  }).format(value);
+  }).format(+value);
 }
 
 export function formatDate(dateStr) {
-  
   return new Intl.DateTimeFormat("en", {
     day: "numeric",
     month: "short",
@@ -19,8 +18,8 @@ export function getPaymentDue(dateString, paymentTerms) {
   date.setDate(date.getDate() + paymentTerms);
 
   const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
 
   return `${year}-${month}-${day}`;
 }
@@ -33,8 +32,8 @@ export function checkAvailabiltyToAddItem(items) {
   let isAvailable = true;
 
   items.forEach((item) => {
-    if (item.name === "") isAvailable = false
-  })
+    if (item.name === "") isAvailable = false;
+  });
 
   return isAvailable;
 }
