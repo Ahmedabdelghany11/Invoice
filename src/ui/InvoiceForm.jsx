@@ -11,6 +11,7 @@ import { useDispatch } from "react-redux";
 import { addInvoiceToList, updateInvoice } from "../features/invoiceSlice";
 import { v4 as uuidv4 } from "uuid";
 import Spinner from "./Spinner";
+import toast from "react-hot-toast";
 
 const StyledFormContainer = styled.div`
   width: 60%;
@@ -214,6 +215,7 @@ function InvoiceForm({ invoice, close, isOpen }) {
         })
       );
       close();
+      toast.success("Invoice successfully updated! Congratulations 🥳");
     } else {
       dispatch(
         addInvoiceToList({
@@ -242,6 +244,7 @@ function InvoiceForm({ invoice, close, isOpen }) {
         })
       );
       close();
+      toast.success("Invoice successfully added! Congratulations 🥳");
     }
     setIsFormLoading(false);
   }

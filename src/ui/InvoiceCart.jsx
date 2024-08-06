@@ -13,6 +13,7 @@ import {
 } from "../features/invoiceSlice";
 import Spinner from "./Spinner";
 import DeleteAcountModal from "./DeleteAcountModal";
+import toast from "react-hot-toast";
 
 const StyledInvoiceCartContainer = styled.div`
   position: relative;
@@ -376,6 +377,8 @@ function InvoiceCart() {
 
   function handleUpdateStatus(newStatus) {
     dispatch(updateInvoice({ ...invoice, status: newStatus }));
+
+    toast.success("Invoice status successfully updated! 🥳");
   }
 
   async function handleDeleteInvoice() {
